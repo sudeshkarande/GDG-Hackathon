@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KindMeal - Enhanced Food Sharing Platform</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2d8659;
+            --primary-dark: #1f5f3d;
+            --primary-light: #4a9f6f;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER STYLES */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-logo i {
+            font-size: 1.8rem;
+            color: #ffd700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .verification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .verification-badge.verified {
+            background: #27ae60;
+            color: white;
+        }
+
+        .verification-badge.pending {
+            background: #f39c12;
+            color: white;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* AUTHENTICATION SCREENS */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, #1abc9c 100%);
+            padding: 1rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .auth-card h2 {
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 134, 89, 0.1);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: rgba(45, 134, 89, 0.05);
+            border-color: var(--primary-dark);
+        }
+
+        .file-upload-label input {
+            display: none;
+        }
+
+        .file-name {
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-btn {
+            padding: 1rem;
+            border: 2px solid var(--gray-300);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .role-btn:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .role-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .role-btn i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* DASHBOARD TABS */
+        .dashboard-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--gray-200);
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--gray-700);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            border-bottom-color: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* CARDS AND LAYOUTS */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            margin-top: 0.3rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-veg {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-non-veg {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-available {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-reserved {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-picked {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .code-display {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .code-number {
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .code-expiry {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* FOOD POSTING FORM */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            max-width: 600px;
+        }
+
+        .form-container h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-900);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2980b9;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+
+        /* FOOD GRID */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .food-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-6px);
+        }
+
+        .food-card-header {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: white;
+            padding: 1rem;
+            min-height: 80px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .food-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .food-card-body {
+            padding: 1.5rem;
+        }
+
+        .food-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .food-detail:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .food-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .food-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .food-card-footer {
+            padding: 1rem;
+            background: var(--gray-50);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-700);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-700);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* SUCCESS MESSAGE */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid var(--info);
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid var(--warning);
+        }
+
+        /* STATUS TIMELINE */
+        .status-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 60px;
+            width: 2px;
+            height: 60px;
+            background: var(--gray-300);
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-dot.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .timeline-dot.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--gray-300);
+        }
+
+        .timeline-content.active {
+            border-left-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-content.completed {
+            border-left-color: var(--success);
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+
+        /* IMPACT DASHBOARD */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .impact-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        .impact-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .impact-card:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .impact-card:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .impact-card:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .impact-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .impact-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .impact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        /* STATS ROW */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            margin-top: 0.3rem;
+        }
+
+        /* FILTER SECTION */
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .filter-group select {
+            padding: 0.6rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .food-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .auth-card {
+                max-width: 95vw;
+            }
+
+            .modal-content {
+                max-width: 95vw;
+            }
+        }
+
+        .input-help {
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            margin-top: 0.3rem;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .photo-preview {
+            width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 1rem;
+            object-fit: cover;
+            border: 2px solid var(--gray-200);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Enhanced Database with verification and codes
+        class FoodSharingDB {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('foodAppUsers')) || [];
+                this.foods = JSON.parse(localStorage.getItem('foodAppFoods')) || [];
+                this.reservations = JSON.parse(localStorage.getItem('foodAppReservations')) || [];
+                this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+                this.initializeMockData();
+            }
+
+            generateUserId() {
+                return 'FD' + Math.random().toString(9).substr(2, 8).toUpperCase();
+            }
+
+            generatePickupCode() {
+                return Math.floor(1000 + Math.random() * 9000).toString();
+            }
+
+            initializeMockData() {
+                if (this.users.length === 0) {
+                    this.users = [
+                        { 
+                            id: this.generateUserId(), 
+                            email: 'provider1@example.com', 
+                            password: 'password', 
+                            name: 'Food Provider 1', 
+                            role: 'provider', 
+                            contact: '9876543210',
+                            registrationDate: new Date().toISOString(),
+                            verified: true
+                        },
+                        { 
+                            id: this.generateUserId(), 
+                            email: 'ngo1@example.com', 
+                            password: 'password', 
+                            name: 'NGO Helper', 
+                            role: 'receiver', 
+                            contact: '9876543211',
+                            orgName: 'Helping Hands NGO',
+                            registrationNo: 'NGO/2023/12345',
+                            certificate: 'verified',
+                            registrationDate: new Date().toISOString(),
+                            verified: true
+                        }
+                    ];
+                    this.saveUsers();
+                }
+            }
+
+            signup(userData) {
+                if (this.users.find(u => u.email === userData.email)) return null;
+                
+                const user = {
+                    id: this.generateUserId(),
+                    ...userData,
+                    registrationDate: new Date().toISOString(),
+                    verified: userData.role === 'provider' ? true : false
+                };
+                this.users.push(user);
+                this.saveUsers();
+                return user;
+            }
+
+            login(email, password) {
+                const user = this.users.find(u => u.email === email && u.password === password);
+                if (user) {
+                    this.currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                }
+                return user;
+            }
+
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('currentUser');
+            }
+
+            addFood(foodData) {
+                const food = { 
+                    ...foodData, 
+                    id: Date.now(), 
+                    providerId: this.currentUser.id, 
+                    status: 'available', 
+                    providedAt: new Date().toISOString(),
+                    pickupCode: null,
+                    photos: null
+                };
+                this.foods.push(food);
+                this.saveFoods();
+                return food;
+            }
+
+            updateFood(id, data) {
+                const food = this.foods.find(f => f.id === id);
+                if (food) {
+                    Object.assign(food, data);
+                    this.saveFoods();
+                }
+                return food;
+            }
+
+            deleteFood(id) {
+                this.foods = this.foods.filter(f => f.id !== id);
+                this.saveFoods();
+            }
+
+            reserveFood(foodId) {
+                const food = this.foods.find(f => f.id === foodId);
+                if (food) {
+                    const code = this.generatePickupCode();
+                    food.status = 'reserved';
+                    food.pickupCode = code;
+                    food.reservedBy = this.currentUser.id;
+                    food.reservedAt = new Date().toISOString();
+                    this.saveFoods();
+                    return { food, code };
+                }
+                return null;
+            }
+
+            getFoods() {
+                return this.foods;
+            }
+
+            getUserFoods(userId) {
+                return this.foods.filter(f => f.providerId === userId);
+            }
+
+            getReservedByUser(userId) {
+                return this.foods.filter(f => f.reservedBy === userId);
+            }
+
+            getAvailableFoods() {
+                return this.foods.filter(f => f.status === 'available');
+            }
+
+            saveUsers() {
+                localStorage.setItem('foodAppUsers', JSON.stringify(this.users));
+            }
+
+            saveFoods() {
+                localStorage.setItem('foodAppFoods', JSON.stringify(this.foods));
+            }
+        }
+
+        const db = new FoodSharingDB();
+
+        // Main App Component
+        function FoodSharingApp() {
+            const [currentUser, setCurrentUser] = useState(db.currentUser);
+            const [isLogin, setIsLogin] = useState(true);
+            const [selectedRole, setSelectedRole] = useState('provider');
+            const [currentTab, setCurrentTab] = useState('dashboard');
+            const [foods, setFoods] = useState(db.foods);
+            const [showAlert, setShowAlert] = useState(null);
+            const [editingFood, setEditingFood] = useState(null);
+            const [filterSort, setFilterSort] = useState('distance');
+            const [filterType, setFilterType] = useState('all');
+            const [showCompletionModal, setShowCompletionModal] = useState(null);
+
+            useEffect(() => {
+                setFoods(db.getFoods());
+            }, []);
+
+            // Authentication Handlers
+            const handleLogin = (e) => {
+                e.preventDefault();
+                const email = e.target.email.value;
+                const password = e.target.password.value;
+                const user = db.login(email, password);
+                if (user) {
+                    setCurrentUser(user);
+                    showSuccessAlert(`Welcome, ${user.name}!`);
+                } else {
+                    showErrorAlert('Invalid credentials');
+                }
+            };
+
+            const handleSignup = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const userData = {
+                    email: formData.get('email'),
+                    password: formData.get('password'),
+                    name: formData.get('name'),
+                    role: selectedRole,
+                    contact: formData.get('contact')
+                };
+
+                if (selectedRole === 'receiver') {
+                    userData.orgName = formData.get('orgName');
+                    userData.registrationNo = formData.get('registrationNo');
+                    userData.certificate = formData.get('certificate') || 'pending';
+                }
+
+                const user = db.signup(userData);
+                if (user) {
+                    db.login(userData.email, userData.password);
+                    setCurrentUser(user);
+                    showSuccessAlert('Account created successfully! Your ID: ' + user.id);
+                } else {
+                    showErrorAlert('Email already exists');
+                }
+            };
+
+            const handleLogout = () => {
+                db.logout();
+                setCurrentUser(null);
+                setCurrentTab('dashboard');
+                showSuccessAlert('Logged out successfully');
+            };
+
+            // Food Handlers
+            const handleAddFood = (e) => {
+                e.preventDefault();
+                const foodData = {
+                    name: e.target.name.value,
+                    quantity: e.target.quantity.value,
+                    type: e.target.type.value,
+                    expiry: e.target.expiry.value,
+                    location: e.target.location.value,
+                    contact: e.target.contact.value
+                };
+                if (editingFood) {
+                    db.updateFood(editingFood.id, foodData);
+                    showSuccessAlert('Food updated successfully!');
+                    setEditingFood(null);
+                } else {
+                    db.addFood(foodData);
+                    showSuccessAlert('Food posted successfully!');
+                }
+                setFoods(db.getFoods());
+                e.target.reset();
+            };
+
+            const handleDeleteFood = (id) => {
+                db.deleteFood(id);
+                setFoods(db.getFoods());
+                showSuccessAlert('Food deleted');
+            };
+
+            const handleAcceptFood = (id) => {
+                const result = db.reserveFood(id);
+                if (result) {
+                    setFoods(db.getFoods());
+                    showSuccessAlert(`Food reserved! Your Pickup Code: ${result.code}`);
+                }
+            };
+
+            const handleStatusUpdate = (id, status) => {
+                if (status === 'completed') {
+                    const food = foods.find(f => f.id === id);
+                    setShowCompletionModal(food);
+                } else {
+                    db.updateFood(id, { status });
+                    setFoods(db.getFoods());
+                    showSuccessAlert(`Status updated to ${status}`);
+                }
+            };
+
+            const handleCompleteWithPhotos = (foodId, photoData) => {
+                db.updateFood(foodId, { 
+                    status: 'completed',
+                    photos: photoData
+                });
+                setFoods(db.getFoods());
+                setShowCompletionModal(null);
+                showSuccessAlert('Food distribution completed successfully!');
+            };
+
+            const showSuccessAlert = (msg) => {
+                setShowAlert({ type: 'success', message: msg });
+                setTimeout(() => setShowAlert(null), 4000);
+            };
+
+            const showErrorAlert = (msg) => {
+                setShowAlert({ type: 'error', message: msg });
+                setTimeout(() => setShowAlert(null), 4000);
+            };
+
+            // If not logged in, show auth screen
+            if (!currentUser) {
+                return <AuthScreen 
+                    isLogin={isLogin} 
+                    setIsLogin={setIsLogin} 
+                    selectedRole={selectedRole} 
+                    setSelectedRole={setSelectedRole} 
+                    onLogin={handleLogin} 
+                    onSignup={handleSignup} 
+                />;
+            }
+
+            // Main Dashboard
+            return (
+                <div className="app-container">
+                    {/* Header */}
+                    <div className="header">
+                        <div className="header-logo">
+                            <i className="fas fa-leaf"></i>
+                            KindMeal
+                        </div>
+                        <div className="header-actions">
+                            <div className="user-info">
+                                <i className="fas fa-user-circle"></i>
+                                <div>
+                                    <span>{currentUser.name}</span>
+                                    <div style={{fontSize: '0.7rem'}}>ID: {currentUser.id}</div>
+                                </div>
+                                {currentUser.verified && (
+                                    <div className="verification-badge verified">
+                                        <i className="fas fa-check-circle"></i> Verified
+                                    </div>
+                                )}
+                                {currentUser.role === 'receiver' && !currentUser.verified && (
+                                    <div className="verification-badge pending">
+                                        <i className="fas fa-clock"></i> Pending
+                                    </div>
+                                )}
+                            </div>
+                            <button className="logout-btn" onClick={handleLogout}>
+                                <i className="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Alert */}
+                    {showAlert && (
+                        <div className="main-content">
+                            <div className={`alert alert-${showAlert.type}`}>
+                                <i className={`fas ${showAlert.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`}></i>
+                                {showAlert.message}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Completion Modal */}
+                    {showCompletionModal && (
+                        <CompletionModal 
+                            food={showCompletionModal}
+                            onSubmit={handleCompleteWithPhotos}
+                            onClose={() => setShowCompletionModal(null)}
+                        />
+                    )}
+
+                    {/* Main Content */}
+                    <div className="main-content">
+                        {/* Tabs */}
+                        <div className="dashboard-tabs">
+                            <button className={`tab-btn ${currentTab === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentTab('dashboard')}>
+                                <i className="fas fa-home"></i> Dashboard
+                            </button>
+                            {currentUser.role === 'provider' && (
+                                <>
+                                    <button className={`tab-btn ${currentTab === 'myfoods' ? 'active' : ''}`} onClick={() => setCurrentTab('myfoods')}>
+                                        <i className="fas fa-utensils"></i> My Foods
+                                    </button>
+                                    <button className={`tab-btn ${currentTab === 'post' ? 'active' : ''}`} onClick={() => setCurrentTab('post')}>
+                                        <i className="fas fa-plus-circle"></i> Post Food
+                                    </button>
+                                </>
+                            )}
+                            {currentUser.role === 'receiver' && (
+                                <>
+                                    <button className={`tab-btn ${currentTab === 'browse' ? 'active' : ''}`} onClick={() => setCurrentTab('browse')}>
+                                        <i className="fas fa-search"></i> Browse Food
+                                    </button>
+                                    <button className={`tab-btn ${currentTab === 'accepted' ? 'active' : ''}`} onClick={() => setCurrentTab('accepted')}>
+                                        <i className="fas fa-check"></i> Accepted Foods
+                                    </button>
+                                </>
+                            )}
+                            <button className={`tab-btn ${currentTab === 'impact' ? 'active' : ''}`} onClick={() => setCurrentTab('impact')}>
+                                <i className="fas fa-chart-bar"></i> Impact
+                            </button>
+                        </div>
+
+                        {/* Dashboard Tab */}
+                        {currentTab === 'dashboard' && <DashboardTab currentUser={currentUser} foods={foods} />}
+
+                        {/* Provider: My Foods */}
+                        {currentTab === 'myfoods' && <MyFoodsTab foods={db.getUserFoods(currentUser.id)} onEdit={(f) => { setEditingFood(f); setCurrentTab('post'); }} onDelete={handleDeleteFood} onStatusUpdate={handleStatusUpdate} currentUser={currentUser} />}
+
+                        {/* Provider: Post Food */}
+                        {currentTab === 'post' && <PostFoodTab onSubmit={handleAddFood} editingFood={editingFood} onCancel={() => setEditingFood(null)} />}
+
+                        {/* Receiver: Browse Food */}
+                        {currentTab === 'browse' && <BrowseFoodTab foods={db.getAvailableFoods()} onAccept={handleAcceptFood} filterSort={filterSort} setFilterSort={setFilterSort} filterType={filterType} setFilterType={setFilterType} currentUser={currentUser} />}
+
+                        {/* Receiver: Accepted Foods */}
+                        {currentTab === 'accepted' && <AcceptedFoodsTab foods={db.getReservedByUser(currentUser.id)} onStatusUpdate={handleStatusUpdate} currentUser={currentUser} />}
+
+                        {/* Impact Dashboard */}
+                        {currentTab === 'impact' && <ImpactTab foods={foods} />}
+                    </div>
+                </div>
+            );
+        }
+
+        // Auth Screen Component
+        function AuthScreen({ isLogin, setIsLogin, selectedRole, setSelectedRole, onLogin, onSignup }) {
+            const [certFile, setCertFile] = useState(null);
+
+            return (
+                <div className="auth-container">
+                    <div className="auth-card">
+                        <h2><i className="fas fa-leaf"></i> KindMeal</h2>
+                        <p style={{textAlign: 'center', color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem'}}>
+                            Fighting hunger, one plate at a time
+                        </p>
+
+                        {isLogin ? (
+                            <form onSubmit={onLogin}>
+                                <div className="form-group">
+                                    <label>Email</label>
+                                    <input type="email" name="email" placeholder="your@email.com" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Password</label>
+                                    <input type="password" name="password" placeholder="••••••••" required />
+                                </div>
+                                <button type="submit" className="submit-btn">Login</button>
+                                <div className="auth-toggle">
+                                    Don't have account? <button type="button" onClick={() => setIsLogin(false)}>Sign Up</button>
+                                </div>
+
+                                {/* Demo Credentials */}
+                                <div style={{marginTop: '1.5rem', padding: '1rem', background: '#f0f9ff', borderRadius: '8px', fontSize: '0.85rem', color: '#0c5460', borderLeft: '4px solid #0c5460'}}>
+                                    <strong>📝 Demo Credentials:</strong><br/>
+                                    <strong>Provider:</strong> provider1@example.com / password<br/>
+                                    <strong>NGO:</strong> ngo1@example.com / password
+                                </div>
+                            </form>
+                        ) : (
+                            <form onSubmit={onSignup}>
+                                <div className="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" name="name" placeholder="Your name" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email</label>
+                                    <input type="email" name="email" placeholder="your@email.com" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Contact Number</label>
+                                    <input type="tel" name="contact" placeholder="9876543210" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Password</label>
+                                    <input type="password" name="password" placeholder="••••••••" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>I am a:</label>
+                                    <div className="role-selector">
+                                        <button type="button" className={`role-btn ${selectedRole === 'provider' ? 'active' : ''}`} onClick={() => setSelectedRole('provider')}>
+                                            <i className="fas fa-utensils"></i>
+                                            Food Provider
+                                        </button>
+                                        <button type="button" className={`role-btn ${selectedRole === 'receiver' ? 'active' : ''}`} onClick={() => setSelectedRole('receiver')}>
+                                            <i className="fas fa-hands-helping"></i>
+                                            NGO/Receiver
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* NGO-Specific Fields */}
+                                {selectedRole === 'receiver' && (
+                                    <>
+                                        <div className="form-group">
+                                            <label>Organization Name</label>
+                                            <input type="text" name="orgName" placeholder="Your NGO Name" required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Registration Number</label>
+                                            <input type="text" name="registrationNo" placeholder="e.g., NGO/2023/12345" required />
+                                            <div className="input-help">
+                                                📋 Authority-issued registration number (required for verification)
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Registration Certificate</label>
+                                            <div className="file-upload-wrapper">
+                                                <label className="file-upload-label">
+                                                    <i className="fas fa-cloud-upload-alt"></i>
+                                                    <span>Click to upload certificate (PDF/JPG/PNG)</span>
+                                                    <input 
+                                                        type="file" 
+                                                        name="certificate"
+                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file && file.size <= 5242880) {
+                                                                setCertFile(file.name);
+                                                            } else {
+                                                                alert('File size must be less than 5MB');
+                                                            }
+                                                        }}
+                                                    />
+                                                </label>
+                                                {certFile && <div className="file-name">✓ {certFile}</div>}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                <button type="submit" className="submit-btn">Create Account</button>
+                                <div className="auth-toggle">
+                                    Already have account? <button type="button" onClick={() => setIsLogin(true)}>Login</button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Dashboard Tab
+        function DashboardTab({ currentUser, foods }) {
+            const totalFoods = foods.length;
+            const availableFoods = foods.filter(f => f.status === 'available').length;
+            const reservedFoods = foods.filter(f => f.status === 'reserved').length;
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>Welcome, {currentUser.name}! 👋</h2>
+                    
+                    <div className="alert alert-info">
+                        <i className="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Your Registration ID:</strong> {currentUser.id} (Keep this safe for verification)
+                            {currentUser.role === 'receiver' && currentUser.registrationNo && (
+                                <><br/><strong>Registration No:</strong> {currentUser.registrationNo}</>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="stats-row">
+                        <div className="stat-box">
+                            <div className="stat-number">{totalFoods}</div>
+                            <div className="stat-label">Total Foods</div>
+                        </div>
+                        <div className="stat-box" style={{borderTopColor: '#f39c12'}}>
+                            <div className="stat-number" style={{color: '#f39c12'}}>{availableFoods}</div>
+                            <div className="stat-label">Available Now</div>
+                        </div>
+                        <div className="stat-box" style={{borderTopColor: '#e74c3c'}}>
+                            <div className="stat-number" style={{color: '#e74c3c'}}>{reservedFoods}</div>
+                            <div className="stat-label">Reserved</div>
+                        </div>
+                        <div className="stat-box" style={{borderTopColor: '#27ae60'}}>
+                            <div className="stat-number" style={{color: '#27ae60'}}>42</div>
+                            <div className="stat-label">Meals Saved</div>
+                        </div>
+                    </div>
+
+                    {currentUser.role === 'provider' ? (
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title"><i className="fas fa-info-circle"></i> Quick Tips for Donors</h3>
+                            </div>
+                            <div style={{lineHeight: '1.8', color: '#555'}}>
+                                <p>✅ Post food items as soon as they're available for best results</p>
+                                <p>✅ When food is reserved, you'll receive a 4-digit code to share with receiver</p>
+                                <p>✅ Both parties must match this code before exchange</p>
+                                <p>✅ Mark food as picked up once receiver collects it</p>
+                                <p>✅ Receiver must upload photos before marking complete</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title"><i className="fas fa-info-circle"></i> Quick Tips for Receivers</h3>
+                            </div>
+                            <div style={{lineHeight: '1.8', color: '#555'}}>
+                                <p>✅ Your NGO certificate is under <strong>{currentUser.verified ? 'VERIFIED' : 'PENDING'}</strong> status</p>
+                                <p>✅ Browse available food items in your area</p>
+                                <p>✅ When you accept food, you'll get a unique 4-digit pickup code</p>
+                                <p>✅ Match this code with donor's code during pickup</p>
+                                <p>✅ You MUST upload photos of distribution before marking complete</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // My Foods Tab (Provider)
+        function MyFoodsTab({ foods, onEdit, onDelete, onStatusUpdate, currentUser }) {
+            if (foods.length === 0) {
+                return (
+                    <div className="empty-state">
+                        <i className="fas fa-inbox"></i>
+                        <div className="empty-state-title">No foods posted yet</div>
+                        <p>Start by posting your first food item!</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>Your Posted Foods</h2>
+                    <div className="food-grid">
+                        {foods.map(food => (
+                            <div key={food.id} className="food-card">
+                                <div className="food-card-header">
+                                    <div>
+                                        <div className="food-name">{food.name}</div>
+                                        <div className="card-subtitle">{food.quantity}</div>
+                                    </div>
+                                </div>
+                                <div className="food-card-body">
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-leaf"></i> Type</span>
+                                        <span className={`badge ${food.type === 'veg' ? 'badge-veg' : 'badge-non-veg'}`}>{food.type.toUpperCase()}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-clock"></i> Expiry</span>
+                                        <span className="food-value">{food.expiry}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-map-marker-alt"></i> Location</span>
+                                        <span className="food-value">{food.location}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-tag"></i> Status</span>
+                                        <span className={`badge badge-${food.status}`}>{food.status.toUpperCase()}</span>
+                                    </div>
+                                    {food.pickupCode && (
+                                        <div className="code-display">
+                                            <div className="code-label">Pickup Code for Receiver</div>
+                                            <div className="code-number">{food.pickupCode}</div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="food-card-footer">
+                                    {food.status === 'available' && (
+                                        <>
+                                            <button className="btn btn-primary btn-sm" onClick={() => onEdit(food)}>
+                                                <i className="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button className="btn btn-danger btn-sm" onClick={() => onDelete(food.id)}>
+                                                <i className="fas fa-trash"></i> Delete
+                                            </button>
+                                        </>
+                                    )}
+                                    {food.status === 'reserved' && (
+                                        <button className="btn btn-success btn-sm" onClick={() => onStatusUpdate(food.id, 'picked')}>
+                                            <i className="fas fa-box"></i> Mark Picked
+                                        </button>
+                                    )}
+                                    {food.status === 'picked' && (
+                                        <button className="btn btn-info btn-sm" onClick={() => onStatusUpdate(food.id, 'completed')}>
+                                            <i className="fas fa-check"></i> Confirm Completed
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Post Food Tab (Provider)
+        function PostFoodTab({ onSubmit, editingFood, onCancel }) {
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>
+                        <i className="fas fa-utensils"></i> {editingFood ? 'Edit Food' : 'Post Surplus Food'}
+                    </h2>
+                    <form className="form-container" onSubmit={onSubmit}>
+                        <h3><i className="fas fa-edit"></i> Food Details</h3>
+                        
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label>Food Name</label>
+                                <input type="text" name="name" placeholder="e.g., Biryani, Pizza, Samosas" defaultValue={editingFood?.name || ''} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Quantity</label>
+                                <input type="text" name="quantity" placeholder="e.g., 10 plates, 2 kg" defaultValue={editingFood?.quantity || ''} required />
+                            </div>
+                        </div>
+
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label>Type</label>
+                                <select name="type" defaultValue={editingFood?.type || 'veg'} required>
+                                    <option value="veg">Vegetarian</option>
+                                    <option value="non-veg">Non-Vegetarian</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Expiry Time</label>
+                                <input type="text" name="expiry" placeholder="e.g., 2 hours, 3:00 PM" defaultValue={editingFood?.expiry || ''} required />
+                            </div>
+                        </div>
+
+                        <div className="form-group form-grid full">
+                            <label>Pickup Location</label>
+                            <input type="text" name="location" placeholder="e.g., Sangli City Center, Near Walchand College" defaultValue={editingFood?.location || ''} required />
+                        </div>
+
+                        <div className="form-group form-grid full">
+                            <label>Your Contact Number</label>
+                            <input type="tel" name="contact" placeholder="9876543210" defaultValue={editingFood?.contact || ''} required />
+                        </div>
+
+                        <div className="action-buttons">
+                            <button type="submit" className="btn btn-primary btn-lg">
+                                <i className="fas fa-check-circle"></i> {editingFood ? 'Update' : 'Post'} Food
+                            </button>
+                            {editingFood && (
+                                <button type="button" className="btn btn-secondary btn-lg" onClick={onCancel}>
+                                    <i className="fas fa-times"></i> Cancel
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                </div>
+            );
+        }
+
+        // Browse Food Tab (Receiver)
+        function BrowseFoodTab({ foods, onAccept, filterSort, setFilterSort, filterType, setFilterType, currentUser }) {
+            let filteredFoods = [...foods];
+            
+            if (filterType !== 'all') {
+                filteredFoods = filteredFoods.filter(f => f.type === filterType);
+            }
+
+            if (filteredFoods.length === 0) {
+                return (
+                    <div className="empty-state">
+                        <i className="fas fa-search"></i>
+                        <div className="empty-state-title">No food available</div>
+                        <p>Check back later for updates</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>Available Food Near You</h2>
+                    
+                    <div className="filter-section">
+                        <div className="filter-group">
+                            <label>Sort by:</label>
+                            <select value={filterSort} onChange={(e) => setFilterSort(e.target.value)}>
+                                <option value="distance">Distance</option>
+                                <option value="expiry">Expiry Time</option>
+                            </select>
+                        </div>
+                        <div className="filter-group">
+                            <label>Type:</label>
+                            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                                <option value="all">All Types</option>
+                                <option value="veg">Vegetarian</option>
+                                <option value="non-veg">Non-Vegetarian</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="food-grid">
+                        {filteredFoods.map(food => (
+                            <div key={food.id} className="food-card">
+                                <div className="food-card-header">
+                                    <div>
+                                        <div className="food-name">{food.name}</div>
+                                        <div className="card-subtitle">{food.quantity}</div>
+                                    </div>
+                                </div>
+                                <div className="food-card-body">
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-leaf"></i> Type</span>
+                                        <span className={`badge ${food.type === 'veg' ? 'badge-veg' : 'badge-non-veg'}`}>{food.type.toUpperCase()}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-clock"></i> Expiry</span>
+                                        <span className="food-value">{food.expiry}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-map-marker-alt"></i> Location</span>
+                                        <span className="food-value">{food.location}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-phone"></i> Contact</span>
+                                        <span className="food-value">{food.contact}</span>
+                                    </div>
+                                </div>
+                                <div className="food-card-footer">
+                                    {food.status === 'available' ? (
+                                        <button className="btn btn-success btn-lg" onClick={() => onAccept(food.id)}>
+                                            <i className="fas fa-check-circle"></i> Accept Food
+                                        </button>
+                                    ) : (
+                                        <button className="btn btn-secondary btn-lg" disabled>
+                                            <i className="fas fa-lock"></i> Reserved
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Accepted Foods Tab (Receiver)
+        function AcceptedFoodsTab({ foods, onStatusUpdate, currentUser }) {
+            if (foods.length === 0) {
+                return (
+                    <div className="empty-state">
+                        <i className="fas fa-inbox"></i>
+                        <div className="empty-state-title">No accepted foods yet</div>
+                        <p>Browse and accept food items to track them here</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>Your Accepted Foods & Tracking</h2>
+                    <div className="food-grid">
+                        {foods.map(food => (
+                            <div key={food.id} className="card">
+                                <div className="card-header">
+                                    <div>
+                                        <div className="food-name">{food.name}</div>
+                                        <div className="card-subtitle">{food.quantity}</div>
+                                    </div>
+                                    <span className={`badge badge-${food.status}`}>{food.status.toUpperCase()}</span>
+                                </div>
+                                <div className="food-card-body">
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-map-marker-alt"></i> Location</span>
+                                        <span className="food-value">{food.location}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-phone"></i> Donor Contact</span>
+                                        <span className="food-value">{food.contact}</span>
+                                    </div>
+                                    <div className="food-detail">
+                                        <span className="food-label"><i className="fas fa-hourglass-end"></i> Expiry</span>
+                                        <span className="food-value">{food.expiry}</span>
+                                    </div>
+                                    {food.pickupCode && (
+                                        <div className="code-display">
+                                            <div className="code-label">Your Pickup Code</div>
+                                            <div className="code-number">{food.pickupCode}</div>
+                                            <div className="code-expiry">⏰ Valid for 24 hours | Match with donor's code</div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{paddingTop: '1rem', borderTop: '1px solid #e5e7eb'}}>
+                                    <div style={{fontSize: '0.9rem', fontWeight: '600', marginBottom: '1rem', color: '#2d8659'}}>Status Progress</div>
+                                    <div className="status-timeline">
+                                        <div className="timeline-step">
+                                            <div className={`timeline-dot ${food.status === 'reserved' ? 'active' : food.status !== 'available' ? 'completed' : ''}`}>1</div>
+                                            <div className={`timeline-content ${food.status === 'reserved' ? 'active' : food.status !== 'available' ? 'completed' : ''}`}>
+                                                <div className="timeline-title">Accepted</div>
+                                                <div className="timeline-desc">You accepted this food & got pickup code</div>
+                                            </div>
+                                        </div>
+                                        <div className="timeline-step">
+                                            <div className={`timeline-dot ${food.status === 'picked' ? 'active' : food.status === 'completed' ? 'completed' : ''}`}>2</div>
+                                            <div className={`timeline-content ${food.status === 'picked' ? 'active' : food.status === 'completed' ? 'completed' : ''}`}>
+                                                <div className="timeline-title">Picked</div>
+                                                <div className="timeline-desc">Food collected from location</div>
+                                            </div>
+                                        </div>
+                                        <div className="timeline-step">
+                                            <div className={`timeline-dot ${food.status === 'completed' ? 'active completed' : ''}`}>3</div>
+                                            <div className={`timeline-content ${food.status === 'completed' ? 'active completed' : ''}`}>
+                                                <div className="timeline-title">Completed</div>
+                                                <div className="timeline-desc">Proof photos uploaded & distributed</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {food.status === 'picked' && (
+                                    <button className="btn btn-success btn-lg" style={{marginTop: '1rem'}} onClick={() => onStatusUpdate(food.id, 'completed')}>
+                                        <i className="fas fa-camera"></i> Upload Proof & Complete
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Completion Modal with Photo Upload
+        function CompletionModal({ food, onSubmit, onClose }) {
+            const [photoFile, setPhotoFile] = useState(null);
+            const [photoPreview, setPhotoPreview] = useState(null);
+            const [description, setDescription] = useState('');
+            const [peopleServed, setPeopleServed] = useState('');
+            const [errors, setErrors] = useState({});
+
+            const handlePhotoChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 5242880) {
+                        setErrors({...errors, photo: 'File size must be less than 5MB'});
+                        return;
+                    }
+                    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                        setErrors({...errors, photo: 'Only JPG and PNG files allowed'});
+                        return;
+                    }
+                    setPhotoFile(file);
+                    const reader = new FileReader();
+                    reader.onload = (e) => setPhotoPreview(e.target.result);
+                    reader.readAsDataURL(file);
+                    setErrors({...errors, photo: null});
+                }
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const newErrors = {};
+
+                if (!photoFile) newErrors.photo = 'Photo is required';
+                if (!description.trim()) newErrors.description = 'Description is required';
+                if (!peopleServed || peopleServed < 1) newErrors.peopleServed = 'Number of people must be at least 1';
+
+                if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    return;
+                }
+
+                const photoData = {
+                    fileName: photoFile.name,
+                    size: photoFile.size,
+                    description: description.trim(),
+                    peopleServed: parseInt(peopleServed),
+                    uploadedAt: new Date().toISOString(),
+                    preview: photoPreview
+                };
+
+                onSubmit(food.id, photoData);
+            };
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={onClose}>
+                            <i className="fas fa-times"></i>
+                        </button>
+                        <h2 style={{color: '#2d8659', marginBottom: '1.5rem'}}>
+                            <i className="fas fa-camera"></i> Complete Distribution
+                        </h2>
+                        <p style={{marginBottom: '1.5rem', color: '#666'}}>
+                            Upload proof of food distribution to complete the transaction
+                        </p>
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>📸 Food Distribution Photo *</label>
+                                <div className="file-upload-wrapper">
+                                    <label className="file-upload-label">
+                                        <i className="fas fa-cloud-upload-alt"></i>
+                                        <span>Click to upload photo (JPG/PNG)</span>
+                                        <input 
+                                            type="file" 
+                                            accept="image/jpeg,image/png,image/jpg"
+                                            onChange={handlePhotoChange}
+                                            required
+                                        />
+                                    </label>
+                                    {photoPreview && <img src={photoPreview} alt="Preview" className="photo-preview" />}
+                                    {errors.photo && <div className="error-message"><i className="fas fa-exclamation-circle"></i> {errors.photo}</div>}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Distribution Description *</label>
+                                <textarea 
+                                    name="description"
+                                    placeholder="Describe how the food was distributed (e.g., served at shelter, distributed to families, etc.)"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    style={{minHeight: '100px'}}
+                                    required
+                                />
+                                <div className="input-help">Min 10 characters required</div>
+                                {errors.description && <div className="error-message"><i className="fas fa-exclamation-circle"></i> {errors.description}</div>}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Number of People Served *</label>
+                                <input 
+                                    type="number" 
+                                    value={peopleServed}
+                                    onChange={(e) => setPeopleServed(e.target.value)}
+                                    placeholder="e.g., 15"
+                                    min="1"
+                                    required
+                                />
+                                {errors.peopleServed && <div className="error-message"><i className="fas fa-exclamation-circle"></i> {errors.peopleServed}</div>}
+                            </div>
+
+                            <div className="alert alert-info">
+                                <i className="fas fa-info-circle"></i>
+                                <span>All fields are mandatory. This proof will be saved for impact tracking.</span>
+                            </div>
+
+                            <div className="action-buttons" style={{marginTop: '1.5rem'}}>
+                                <button type="submit" className="btn btn-success btn-lg">
+                                    <i className="fas fa-check-circle"></i> Submit & Complete
+                                </button>
+                                <button type="button" className="btn btn-secondary btn-lg" onClick={onClose}>
+                                    <i className="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // Impact Dashboard Tab
+        function ImpactTab({ foods }) {
+            const totalMealsSaved = foods.length * 5;
+            const co2Reduced = Math.round(totalMealsSaved * 0.5);
+            const activeDonors = 5;
+            const activeReceivers = 8;
+            const completedDeliveries = foods.filter(f => f.status === 'completed').length;
+            const photosSubmitted = foods.filter(f => f.photos).length;
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '1.5rem', color: '#2d8659'}}>
+                        <i className="fas fa-heart"></i> Impact Dashboard
+                    </h2>
+
+                    <div className="impact-grid">
+                        <div className="impact-card">
+                            <div className="impact-icon">🍽️</div>
+                            <div className="impact-number">{totalMealsSaved}</div>
+                            <div className="impact-label">Meals Saved from Waste</div>
+                        </div>
+                        <div className="impact-card">
+                            <div className="impact-icon">🌱</div>
+                            <div className="impact-number">{co2Reduced} kg</div>
+                            <div className="impact-label">CO₂ Emissions Reduced</div>
+                        </div>
+                        <div className="impact-card">
+                            <div className="impact-icon">🤝</div>
+                            <div className="impact-number">{activeDonors}</div>
+                            <div className="impact-label">Active Food Donors</div>
+                        </div>
+                        <div className="impact-card">
+                            <div className="impact-icon">❤️</div>
+                            <div className="impact-number">{activeReceivers}</div>
+                            <div className="impact-label">NGO Organizations</div>
+                        </div>
+                    </div>
+
+                    <div className="stats-row">
+                        <div className="stat-box" style={{borderTopColor: '#27ae60'}}>
+                            <div className="stat-number" style={{color: '#27ae60'}}>{completedDeliveries}</div>
+                            <div className="stat-label">Completed Distributions</div>
+                        </div>
+                        <div className="stat-box" style={{borderTopColor: '#3498db'}}>
+                            <div className="stat-number" style={{color: '#3498db'}}>{photosSubmitted}</div>
+                            <div className="stat-label">Verified Proofs</div>
+                        </div>
+                        <div className="stat-box" style={{borderTopColor: '#e74c3c'}}>
+                            <div className="stat-number" style={{color: '#e74c3c'}}>{foods.filter(f => f.status === 'available').length}</div>
+                            <div className="stat-label">Currently Available</div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-header">
+                            <h3 className="card-title"><i className="fas fa-leaf"></i> Environmental Impact</h3>
+                        </div>
+                        <div style={{lineHeight: '2', fontSize: '1.1rem', color: '#555'}}>
+                            <p><strong>💚 Food Waste Reduction:</strong> {totalMealsSaved} meals diverted from landfills</p>
+                            <p><strong>🌍 Carbon Footprint Saved:</strong> ~{co2Reduced}kg CO₂</p>
+                            <p><strong>💧 Water Saved:</strong> ~{Math.round(totalMealsSaved * 200)} liters</p>
+                            <p><strong>🌱 Communities Served:</strong> {activeReceivers} organizations helping {Math.round(totalMealsSaved * 1.5)} people</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render App
+        ReactDOM.createRoot(document.getElementById('root')).render(<FoodSharingApp />);
+    </script>
+</body>
+</html>
